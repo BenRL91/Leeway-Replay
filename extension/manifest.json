@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Leeway Replay",
+  "version": "0.3.0",
+  "description": "Watch. Understand. Improve. Create private timestamped YouTube notes and step-by-step tutorials.",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open your Leeway Replay library"
+  },
+  "options_ui": {
+    "page": "library.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*"
+      ],
+      "js": [
+        "core.js",
+        "ui.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "styles.css"
+      ],
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*"
+      ]
+    }
+  ]
+}

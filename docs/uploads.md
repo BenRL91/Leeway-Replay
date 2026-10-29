@@ -1,0 +1,21 @@
+# Local media and existing cloud files
+
+New cloud uploads are disabled by default at both multipart and single-PUT endpoints. `LEEWAY_CLOUD_UPLOADS` is absent in the hosted configuration; only an explicitly configured `enabled` value would reopen server uploads. No billing or infrastructure was provisioned. Existing completed uploads remain intact and private. Cancellation of preexisting multipart sessions remains available.
+
+The default file picker opens video/audio on-device via a temporary Blob URL. No local-media bytes are sent to any API. Notes and tutorial steps save only a local source ID, title, media type, and local flag in the existing account-scoped library. Notes still use the app's existing cloud persistence; this is not a guarantee of zero hosting charges. Closing/reloading requires explicitly reselecting the file. Matching uses size plus hashes of the first and last 1 MiB, not a full-file checksum. Renamed copies with the same sampled bytes match; mismatched footage is rejected when restoring a note jump. The local source is not transferable to a private coaching review link. Native browser codec support still determines playback.
+
+# Legacy upload implementation (currently disabled)
+
+Private uploads support MP4/MOV/WebM video, MP3/M4A/WAV/OGG audio, JPG/PNG/WebP/GIF images, PDFs, and TXT/MD/CSV/JSON text. Files must be nonempty and at most 25 GiB (shown as 25 GB in the app). Media playback depends on browser codecs. PDF display is native with a new-tab fallback. Text is rendered as plain text, bounded to the first 2 MiB. Word, PowerPoint, and ZIP conversion is not included.
+
+The browser uploads sequential 8 MiB parts to an authenticated multipart API, retries transient part failures up to three times, and exposes progress and cancellation. Every part has an enforced expected byte length. Provider upload IDs and part ETags stay server-side, with owner-scoped session records and same-origin mutations. Files appear only after all parts are completed. Completion can be retried after a lost response; cancelled uploads cannot complete. Sessions expire after 24 hours. Incomplete provider uploads have the R2 default seven-day cleanup; small session/receipt records currently remain stored. Keep the page open and device awake; automatic resume after refresh or app suspension is not implemented. A failed attempt can be restarted by choosing the file again.
+
+A server Worker serves byte-range playback through the logical R2 binding BUCKET. Object keys are scoped to the verified account storage identity. Mutations require a same-origin request. A conditional R2 document write preserves note revisions and concurrent saves; failed writes preserve the draft. No delete UI/API is exposed in this version.
+
+The browser migrates schema-v1 local notes by record ID into its signed-in cloud library. The original browser copy is preserved, and a per-account migration marker avoids reimporting deleted records on subsequent sessions. Backups include notes and file references, not uploaded bytes. Download originals separately; references from a different account cannot retrieve that account's files.
+
+The desktop extension retains its local storage. Schema v2 accepts both legacy YouTube sources and file references. File references imported into the extension prompt opening the companion preview.
+
+Upload feedback appears immediately in a persistent floating panel, with filename, percent, transferred size, waiting-for-response hints, retry state and terminal success/failure/cancellation. Transfer completion and server save confirmation are distinct. A saved file is opened only by explicit button press; status remains until dismissed. Session/finalization requests have a 45-second response timeout, part requests a 180-second timeout, and failed-upload cleanup a 10-second timeout. Refresh still does not resume an interrupted upload.
+
+Large-upload completion reads paginated part metadata (up to 1,000 per page), with numeric ordering and a completeness check. A 25 GiB upload has 3,200 parts, finalized from four listing calls rather than thousands of individual reads. Legacy receipts without metadata still work. Session-capacity and manifest tests do not transfer multi-gigabyte files to production; physical 15–25 GB device testing remains outstanding.

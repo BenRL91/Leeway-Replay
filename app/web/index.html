@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171717">
+  <meta name="description" content="Leeway Replay: timestamped notes, tutorials, uploaded files, and private coaching breakdowns.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Leeway Replay · Library</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="web.css">
+<link rel="stylesheet" href="/palette.css"><link rel="stylesheet" href="/player-notes.css"><script src="/appearance.js"></script><link rel="stylesheet" href="/experience.css"><link rel="icon" href="/favicon.ico?v=2" sizes="16x16 32x32 48x48"><link rel="icon" href="/favicon-48.png?v=2" type="image/png" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" sizes="180x180"></head>
+<body class="library-page">
+  <header class="preview-banner app-header"><a class="brand" href="/"><img class="brand-icon" src="/brand-mark.svg" alt="">Leeway <strong>Replay</strong></a><nav class="app-nav" aria-label="Main navigation"><a href="/library" aria-current="page">Saved library</a><a id="breakdowns-nav" href="/">My Replays</a><a href="/leeway-account">Account</a></nav><div id="notifications"></div></header>
+  <div id="app-scroll" class="app-scroll">
+    <section id="review-entry" class="review-entry" aria-label="Coaching reviews" hidden>
+      <div><h2 id="review-entry-title">Review workspace</h2><p id="review-entry-help"></p><p id="review-entry-account" class="small-print"></p></div>
+      <div class="row wrap"><a id="create-review-link" class="primary action" href="/replay?new=1" hidden>Create review</a><a id="review-workspace-link" class="secondary action" href="/replay">Open breakdowns</a><a class="external-link" href="/leeway-account?next=%2Freplay">Switch account</a></div>
+    </section><div class="workspace">
+    <section class="watch-column" aria-label="Video workspace">
+      <details class="source-picker"><summary>Open footage or saved video</summary>
+      <div id="saved-video-picker"></div>
+      <form id="video-form" class="card video-form">
+        <label class="field" for="video-link"><span>YouTube link</span><textarea id="video-link" rows="2" required placeholder="Paste a YouTube link or shared message" autocomplete="off"></textarea></label>
+        <button class="primary" type="submit">Load video</button>
+        <button id="example-video" class="secondary" type="button">Try an example</button>
+        <p class="small-print">Loading a video connects to YouTube. Your saved notes stay in your private library.</p>
+      </form>
+      <section class="card uploads" aria-label="Uploaded learning material">
+        <h2>Open a local video</h2>
+        <label class="field"><span>Choose video or audio from your device — no upload</span><input id="local-file-input" type="file" accept="video/*,audio/*,.mp4,.mov,.webm,.m4v,.mp3,.m4a,.wav,.ogg"></label>
+        <p id="local-file-status" role="status" aria-live="polite">The file stays on your device. Save timestamped notes here, then choose the same file again when you return.</p>
+        <p class="small-print">Only notes and a file reference are saved in your library. Local footage cannot be delivered through a private review link.</p>
+        <button id="cancel-local-jump" class="secondary" type="button" hidden>Cancel timestamp jump</button><h3>Previously uploaded files</h3><p class="small-print">New cloud uploads are disabled. Existing uploads remain available.</p>
+        <label class="field" hidden><span>Cloud uploads disabled</span><input id="file-input" disabled type="file" accept=".mp4,.mov,.webm,.mp3,.m4a,.wav,.ogg,.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt,.md,.csv,.json"></label>
+        <p class="small-print">Video, audio, images, PDFs, and text. Playback depends on the file’s format and your browser.</p>
+        <aside id="upload-panel" class="upload-panel" data-state="starting" aria-label="File upload status" hidden>
+          <div class="row spread"><strong id="upload-heading">Preparing upload</strong><button id="dismiss-upload" class="secondary" type="button" hidden>Dismiss</button></div>
+          <p id="upload-name" class="upload-name"></p>
+          <p id="upload-status" role="status" aria-live="polite"></p>
+          <progress id="upload-progress" max="100" value="0" aria-label="File transfer progress"></progress>
+          <p id="upload-metrics" class="upload-metrics"></p>
+          <p id="upload-activity" class="upload-activity"></p>
+          <div class="row wrap"><button id="cancel-upload" type="button" class="secondary">Cancel upload</button><button id="open-upload" type="button" class="primary" hidden>Open saved file</button></div>
+        </aside>
+        
+        <div id="file-list" class="file-list"></div>
+      </section>
+      </details>
+      <div id="file-viewer" class="file-viewer" hidden></div>
+      <div id="player-shell" class="player-shell"><div id="player-placeholder"><span>▶</span><h3>Your next replay starts here</h3><p>Open a video, capture a moment, and make it useful.</p><div class="row placeholder-actions"><button id="choose-youtube" class="primary" type="button">YouTube link</button><button id="choose-local" class="secondary" type="button">Local video</button></div></div><div id="player-mount" hidden></div></div>
+      <div class="seek-controls" aria-label="Video seeking controls">
+        <button id="seek-back" type="button" class="secondary" disabled>−10 seconds</button>
+        <button id="seek-forward" type="button" class="secondary" disabled>+10 seconds</button>
+        <form id="seek-form"><label for="seek-time">Jump to time</label><div class="row"><input id="seek-time" placeholder="1:30" aria-label="Playback timestamp"><button id="seek-go" type="submit" class="primary" disabled>Go</button></div></form>
+      </div>
+      <p id="player-message" class="player-message" role="status" aria-live="polite">You can also add notes manually without loading a video.</p>
+      <a id="open-youtube" class="external-link" target="_blank" rel="noopener noreferrer" hidden>Open this video on YouTube ↗</a>
+      <div id="playback-notes"></div><div id="moment-composer"></div>
+
+    </section>
+    <details class="library-browser"><summary>Browse library <span>Saved notes, tutorials &amp; backups</span></summary><main id="app" aria-label="Leeway Replay library"></main></details>
+  </div>
+  </div>
+  <script src="session.js"></script><script src="workspace-entry.js"></script><script src="core.js"></script><script src="playback-report.js"></script><script src="player-dock.js"></script><script src="playback.js"></script><script src="cloud-transport.js"></script><script src="links.js"></script><script src="ui.js"></script><script src="uploads.js"></script><script src="local-files.js"></script><script src="note-follow.js"></script><script src="web.js"></script>
+<script type="module" src="/notifications-entry.js"></script></body>
+</html>
