@@ -68,3 +68,19 @@ test('untouched YouTube pause timestamps load a visible frame silently, pause af
 test('consolidated icon controls jump and step the mounted video, and readiness disables frame actions',async()=>{
  const {context}=harness(),container=new Element('div');const p=context.YouTutorPlayback.mount(container);const back=find(container,n=>n.attributes['aria-label']==='Back 10 seconds'),forward=find(container,n=>n.attributes['aria-label']==='Forward 10 seconds'),previous=find(container,n=>n.attributes['aria-label']==='Previous frame'),next=find(container,n=>n.attributes['aria-label']==='Next frame');assert.equal(previous.disabled,true);assert.equal(next.disabled,true);await p.load({kind:'file',id:'local'},'/media');const video=container.children[0].children[0];let pauses=0;video.pause=()=>pauses++;video.dispatch('loadedmetadata');assert.equal(next.disabled,false);video.currentTime=40;back.dispatch('click');assert.equal(video.currentTime,30);forward.dispatch('click');assert.equal(video.currentTime,40);next.dispatch('click');assert.ok(Math.abs(video.currentTime-(40+1/30))<1e-8);previous.dispatch('click');assert.ok(Math.abs(video.currentTime-40)<1e-8);assert.equal(pauses,2);assert.equal(container.children[0].children[0],video);p.destroy();
 });
+test('transport play/pause follows native and YouTube state without seeking or replacing media',async()=>{
+ for(const kind of ['file','youtube']){
+  const {context,tick}=harness(),container=new Element('div');let yt,options,plays=0,pauses=0,seeks=0;
+  context.YT={Player:class{constructor(target,opts){yt=this;options=opts;this.state=-1;}getCurrentTime(){return 10;}getDuration(){return 100;}getPlayerState(){return this.state;}playVideo(){plays++;}pauseVideo(){pauses++;}seekTo(){seeks++;}destroy(){}}};
+  const p=context.YouTutorPlayback.mount(container),toggle=find(container,n=>n.attributes['data-playback-toggle']);assert.equal(toggle.disabled,true);
+  await p.load({kind,id:'M7lc1UVf-VE'},'blob:local');const media=container.children[0].children[0];
+  if(kind==='file'){media.paused=true;media.play=()=>{plays++;media.paused=false;media.dispatch('play');return Promise.resolve();};media.pause=()=>{pauses++;media.paused=true;media.dispatch('pause');};media.dispatch('loadedmetadata');}else options.events.onReady();
+  assert.equal(toggle.disabled,false);assert.equal(toggle.attributes['aria-label'],'Play video');toggle.dispatch('click');assert.equal(plays,1);
+  if(kind==='youtube'){yt.state=1;options.events.onStateChange({data:1});}
+  assert.equal(toggle.attributes['aria-label'],'Pause video');toggle.dispatch('click');assert.equal(pauses,1);
+  if(kind==='youtube'){yt.state=2;options.events.onStateChange({data:2});}
+  assert.equal(toggle.attributes['aria-label'],'Play video');
+  if(kind==='file'){media.paused=false;media.dispatch('play');}else{yt.state=1;options.events.onStateChange({data:1});}
+  tick();assert.equal(toggle.attributes['aria-label'],'Pause video');assert.equal(seeks,0);assert.equal(container.children[0].children[0],media);p.destroy();assert.equal(toggle.disabled,true);
+ }
+});

@@ -485,3 +485,8 @@ main#replay-app{width:100%;min-width:0}
 .workspace-mode-content{min-width:0;overflow-wrap:anywhere;}
 .workspace-mode-content .docked-content>summary{display:none;}
 @media(max-width:700px){.workspace-mode-tabs button{font-size:12px;}.workspace-mode-tabs{gap:2px;}}
+
+/* Five transport actions: jump back, previous frame, play/pause, next frame, jump ahead. */
+.compact-transport [data-playback-toggle]{color:var(--lr-gold-text);}
+.player-tool-rail .docked-transport:has([data-playback-toggle]){display:flex;flex-wrap:wrap;justify-content:center;}
+.player-tool-rail .docked-transport:has([data-playback-toggle]) .transport-icon{width:44px;flex:none;}

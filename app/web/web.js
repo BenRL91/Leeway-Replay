@@ -116,7 +116,7 @@
   });
   const followNotes=LeewayNoteFollow.mount(document.getElementById('playback-notes'),{heading:'Current moment',actions:n=>{const actions=app.noteActions?.(n.id);return actions?[{label:'Edit note / times',run:actions.edit},{label:'Delete note',run:actions.remove}]:[];},seek:(at,n)=>n?openSavedNote(n):seek(at),playing:()=>pausedSeek===null&&( activeMedia?(!activeMedia.paused||activeMedia.ended):[0,1].includes(player?.getPlayerState?.())),loopSeek:at=>{seek(at);if(activeMedia?.paused)activeMedia.play?.().catch?.(()=>{});else if(!activeMedia)player?.playVideo?.();}});
   let lastNoteVersion='';
-  const followTimer=setInterval(()=>{const version=`${current?.kind||'youtube'}:${current?.id||''}:${app.playbackNoteVersion()}`;if(version!==lastNoteVersion){lastNoteVersion=version;followNotes.setNotes(app.playbackNotes(current));}const at=activeMedia?.currentTime ?? (ready?player?.getCurrentTime?.():0);if(Number.isFinite(at))followNotes.tick(at);},250);
+  const followTimer=setInterval(()=>{libraryFrames.refreshPlayback?.();const version=`${current?.kind||'youtube'}:${current?.id||''}:${app.playbackNoteVersion()}`;if(version!==lastNoteVersion){lastNoteVersion=version;followNotes.setNotes(app.playbackNotes(current));}const at=activeMedia?.currentTime ?? (ready?player?.getCurrentTime?.():0);if(Number.isFinite(at))followNotes.tick(at);},250);
   addEventListener('pagehide',()=>clearInterval(followTimer));
   document.getElementById('video-form').addEventListener('submit', event => {
     event.preventDefault();
@@ -135,7 +135,7 @@
     player.seekTo(target, true); document.getElementById('seek-time').value = core.formatTime(target);
     announce(`Moved to ${core.formatTime(target)}. Capture the moment when you are ready.`);
   }
-  const libraryFrames=YouTutorPlayback.frameControls(document.getElementById('seek-form'),{jumpButtons:[document.getElementById('seek-back'),document.getElementById('seek-forward')],position:()=>activeMedia?.currentTime??player?.getCurrentTime?.()??0,ready:()=>!!activeMedia||ready,pause:()=>{if(activeMedia)activeMedia.pause();else player?.pauseVideo?.();},seek});
+  const libraryFrames=YouTutorPlayback.frameControls(document.getElementById('seek-form'),{jumpButtons:[document.getElementById('seek-back'),document.getElementById('seek-forward')],isPlaying:()=>!!activeMedia?(!activeMedia.paused&&!activeMedia.ended):pausedSeek===null&&[1,3].includes(player?.getPlayerState?.()),togglePlayback:()=>{if(activeMedia){if(activeMedia.paused||activeMedia.ended)activeMedia.play?.().catch?.(()=>announce('Tap Play in the video to continue.'));else activeMedia.pause();}else if([1,3].includes(player?.getPlayerState?.())&&pausedSeek===null){player.pauseVideo?.();}else{pausedSeek=null;restorePreviewSound();player?.playVideo?.();}},position:()=>activeMedia?.currentTime??player?.getCurrentTime?.()??0,ready:()=>!!activeMedia||ready,pause:()=>{if(activeMedia)activeMedia.pause();else player?.pauseVideo?.();},seek});
   document.getElementById('seek-back').addEventListener('click', () => seek((activeMedia ? activeMedia.currentTime : player.getCurrentTime()) - 10));
   document.getElementById('seek-forward').addEventListener('click', () => seek((activeMedia ? activeMedia.currentTime : player.getCurrentTime()) + 10));
   document.getElementById('seek-form').addEventListener('submit', event => { event.preventDefault(); try { seek(core.parseTime(document.getElementById('seek-time').value)); } catch (error) { announce(error.message, true); } });
